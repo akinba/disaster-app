@@ -92,3 +92,37 @@ axios.get(urlH)
 	});
 
 
+
+const Koa = require('koa');
+const app = new Koa();
+const Router = require('koa-router');
+const router = new Router();
+const render = require('koa-ejs');
+const join = require('path').join;
+
+app.use(router.routes());
+app.use(router.allowedMethods());
+app.use(require('koa-bodyparser')({
+    // BodyParser options here
+}));
+render(app, {
+    root: join(__dirname,'views'),
+    layout: false,
+    viewExt: 'html',
+    cache: false,
+    debug: false
+})
+
+router.get('/', async (ctx,next)=>{
+		var eq= Earthquake.findAll()
+			.then(async (data)=>{
+				//console.log(data);
+				await data;
+			});
+	console.log(eq);
+     await ctx.render('index',{earthquake: eq});
+});
+
+app.use(router.routes());
+
+app.listen(3000);
