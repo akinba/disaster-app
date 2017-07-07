@@ -114,13 +114,14 @@ render(app, {
 })
 
 router.get('/', async (ctx,next)=>{
-		var eq= Earthquake.findAll()
+/*		var eq= Earthquake.findAll()
 			.then(async (data)=>{
 				//console.log(data);
 				await data;
-			});
-	console.log(eq);
-     await ctx.render('index',{earthquake: eq});
+			});*/
+	var eq= await Earthquake.findAll();
+	//console.log(eq);
+     await ctx.render('index',{earthquake: JSON.stringify(eq)});
 });
 
 app.use(router.routes());
