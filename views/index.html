@@ -2,12 +2,42 @@
 <html>
 <head>
 	<title></title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- CSS -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.0.1/ol.css" />
+	<!-- JavaScript -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.0.1/ol.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.slim.js"></script>
 </head>
 <body>
-<h4>Earthquake: <%-earthquake%></h4>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.slim.js"></script>
-<script type="text/javascript">
-	socket= io();
-</script>
+	<div id="map"></div>
+	<script type="text/javascript">
+		var map = new ol.Map({
+			target: 'map',
+			layers: [
+				basemap = new ol.layer.Tile({
+					source: new ol.source.OSM()
+				})
+			],
+			view: new ol.View({
+				projection: 'EPSG:4326',
+				center: [0,0],
+				zoom: 3
+			})
+		});
+
+		Features = new ol.format.GeoJSON().readFeatures(<%-earthquake%>);//new ol.Feature({});
+		Source  = new ol.source.Vector({
+    		features: Features
+    	});
+    	Layer = new ol.layer.Vector({
+    		projection: 'EPSG:4326',
+    		source: Source
+    	});
+    	map.addLayer(Layer);
+
+	</script>
 </body>
 </html>
