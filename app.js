@@ -3,10 +3,12 @@ const os	=	require('os');
 const Sequelize = require('sequelize');
 if (os.hostname()=='raspi') {
 	var sequelize = new Sequelize("postgres://postgres:pi@localhost:5432/maks");
+} else if (os.hostname()=='DESKTOP-4DBC3SR') {
+	var sequelize = new Sequelize("postgres://postgres:pi@192.168.2.225:5432/maks",
+		{logging:false});
 } else {
 	var sequelize = new Sequelize("postgres://postgres:pi@www.akinba.com:5432/maks"
-		,{logging:false}
-		);
+		,{logging:false});
 }
 const Earthquake = sequelize.define('earthquake', {
 	id: {type: Sequelize.STRING, primaryKey: true},
@@ -41,6 +43,7 @@ const Earthquake = sequelize.define('earthquake', {
 	underscored: true,
 	paranoid: true
 });
+
 
 sequelize.sync({force:false}).then((info)=>{
 	//console.log(info);
@@ -119,11 +122,22 @@ router.get('/', async (ctx,next)=>{
 				//console.log(data);
 				await data;
 			});*/
-	var eq= await Earthquake.findAll();
+	var geoJson={"type": "FeatureCollection", "features": []};
+	var rows= await Earthquake.findAll();
+	rows.forEach((row)=>{
+		var geometry= row.dataValues.geom;
+		delete row.dataValues.geom;
+		var feature= {
+			"type":"Feature",
+			"geometry": geometry,
+			"properties": row.dataValues
+		}
+		geoJson.features.push(feature);
+	})
 	//console.log(eq);
-     await ctx.render('index',{earthquake: JSON.stringify(eq)});
+     await ctx.render('index',{earthquake: JSON.stringify(geoJson)});
 });
 
 app.use(router.routes());
 
-app.listen(3000);
+app.listen(3005);
